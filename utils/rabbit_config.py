@@ -5,7 +5,7 @@ import json
 from aio_pika import connect, Message
 from fastapi import BackgroundTasks
 from redis import asyncio as aioredis
-from config import RABBITMQ_HOST, RABBITMQ_PORT, REDIS_HOST
+from config import RABBITMQ_HOST, RABBITMQ_PORT, REDIS_HOST, REDIS_PORT
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,7 +25,7 @@ async def send_rabbitmq_message_async(msg):
             routing_key="fastapi_task"
         )
 
-        redis = aioredis.from_url(f"redis://{REDIS_HOST}")
+        redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
         await redis.incr("successful_tasks")
 
         await connection.close()

@@ -8,7 +8,7 @@ from redis import asyncio as aioredis
 
 from schema import Task
 from utils import send_rabbitmq_message, send_task_to_redis
-from config import REDIS_HOST
+from config import REDIS_HOST, REDIS_PORT
 
 router = APIRouter(
     prefix="/api/v1",
@@ -46,7 +46,7 @@ async def add_task_endpoint(background_tasks: BackgroundTasks, task: Task = Body
 
 @router.get("/get-stats", summary="Возвращает количество отправленных задач")
 async def get_my_tasks():
-    redis = aioredis.from_url(f"redis://{REDIS_HOST}")
+    redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
     count = await redis.get("successful_tasks")
     return JSONResponse(status_code=status.HTTP_200_OK,
                         content={"tasks_count": int(count.decode("utf-8")) if count else 0})
@@ -55,7 +55,7 @@ async def get_my_tasks():
 @router.get("/get-task-queue", summary="Возвращает очередь задач из Redis")
 async def get_task_queue():
 
-    redis = aioredis.from_url(f"redis://{REDIS_HOST}")
+    redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
     tasks = await redis.lrange("task_queue", 0, -1)
 
     return JSONResponse(status_code=status.HTTP_200_OK, content={"tasks": [task.decode("utf-8") for task in tasks]})
@@ -71,7 +71,7 @@ async def update_task(taskID: str,
                               "param2": "value2",
                           }
                       })):
-    redis = aioredis.from_url(f"redis://{REDIS_HOST}")
+    redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
     try:
         tasks = await redis.lrange("task_queue", 0, -1)
         for index, t in enumerate(tasks):

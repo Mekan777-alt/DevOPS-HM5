@@ -25,4 +25,3 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(lifespan=lifespan, docs_url="/", title="Домашка по DevOPS")
 
 app.include_router(router)
-
